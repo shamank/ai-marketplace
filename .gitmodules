@@ -1,0 +1,9 @@
+[submodule "api-gateway"]
+	path = api-gateway
+	url = https://github.com/shamank/ai-marketplace-api-gateway
+[submodule "stats-service"]
+	path = stats-service
+	url = https://github.com/shamank/ai-marketplace-stats-service
+[submodule "protos"]
+	path = protos
+	url = https://github.com/shamank/ai-marketplace-protos.git
