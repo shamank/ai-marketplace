@@ -1,0 +1,57 @@
+version: "3.3"
+services:
+  #  stats-service:
+  #    image: stats-service
+  #    build:
+  #      context: .
+  #    ports:
+  #      - 8080:8080
+  #      -
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - stats-service
+
+  stats-service:
+    build:
+      context: ./stats-service
+    command: dockerize -wait tcp://postgres:5432 -timeout 15s ./.bin/app --cfg=./configs/prod.yaml
+    ports:
+      - "9090:9090"
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+
+    volumes:
+      - ./.databases/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "stats"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+#      PGDATA: "/var/lib/postgresql/data/pgdata"
+
+  migrations:
+    build:
+      context: ./stats-service
+      dockerfile: Dockerfile.migrations
+
+    command: dockerize -wait tcp://postgres:5432 -timeout 15s ./.bin/migrate --cfg=./configs/prod.yaml --migrations=./migrations/
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+
+    depends_on:
+      - postgres
+
+
